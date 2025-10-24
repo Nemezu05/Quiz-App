@@ -1,0 +1,52 @@
+body {
+    background: linear-gradient(to right, rgb(224, 247, 250), rgb(225, 190, 231));
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: rgb(51, 51, 51);
+    margin: 0;
+}
+
+h1 {
+    font-weight: 700;
+    color: rgb(44, 62, 80);
+}
+
+p.lead {
+    color: rgb(85, 85, 85);
+}
+
+.start-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+.start-btn:hover {
+    background-color: rgb(0, 86, 179);
+    transform: scale(1.05);
+}
+
+footer {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+h2 {
+    font-weight: 700;
+    color: rgb(44, 62, 80);
+}
+
+#timer {
+    font-size: 1.2rem;
+}
+
+form .form-check {
+    margin-bottom: 10px;
+}
+
+.btn-success {
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-success:hover {
+    background-color: rgb(0, 123, 255);
+    transform: scale(1.05);
+}
