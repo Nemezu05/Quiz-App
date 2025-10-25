@@ -50,7 +50,7 @@ if ($timeLeft <= 0) {
   <link rel="stylesheet" href="style2.css" />
 </head>
 <body>
-  <div class="container py-3">
+  <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>📝 Quiz - Page <?php echo $page; ?>/<?php echo $totalPages; ?></h2>
       <div class="text-danger fw-bold" id="timer"></div>
