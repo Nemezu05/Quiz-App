@@ -37,69 +37,94 @@ if ($timeLeft <= 0) {
     header("Location: submit.php");
     exit();
 }
+
+// Show any error message from submit.php
+$errorMsg = $_SESSION['error'] ?? '';
+unset($_SESSION['error']);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quiz</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="style2.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quiz</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="style2.css" />
 </head>
 <body>
-  <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>📝 Quiz - Page <?php echo $page; ?>/<?php echo $totalPages; ?></h2>
-      <div class="text-danger fw-bold" id="timer"></div>
-    </div>
-
-    <form action="quiz.php?page=<?php echo $page + 1; ?>" method="POST" id="quizForm">
-      <?php
-      $qNum = $startIndex + 1;
-      foreach ($questionsToShow as $question) {
-          echo "<div class='mb-4'>";
-          echo "<p><strong>Q{$qNum}. " . htmlspecialchars($question['question_text']) . "</strong></p>";
-
-          foreach (['a', 'b', 'c', 'd'] as $opt) {
-              $optionText = htmlspecialchars($question['option_' . $opt]);
-              $checked = isset($_SESSION['answers'][$question['id']]) && $_SESSION['answers'][$question['id']] == $opt ? 'checked' : '';
-              echo "<div class='form-check'>";
-              echo "<input class='form-check-input' type='radio' name='answer[{$question['id']}]' value='{$opt}' id='q{$question['id']}{$opt}' {$checked}>";
-              echo "<label class='form-check-label' for='q{$question['id']}{$opt}'>{$optionText}</label>";
-              echo "</div>";
-          }
-
-          echo "</div>";
-          $qNum++;
-      }
-      ?>
-      <?php if ($page < $totalPages): ?>
-        <button type="submit" class="btn btn-primary mt-3">Next</button>
-      <?php else: ?>
-        <button type="submit" formaction="submit.php" class="btn btn-success mt-3">Submit Quiz</button>
-      <?php endif; ?>
-    </form>
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📝 Quiz - Page <?php echo $page; ?>/<?php echo $totalPages; ?></h2>
+    <div class="text-danger fw-bold" id="timer"></div>
   </div>
 
-  <script>
-    let timeLeft = <?php echo $timeLeft; ?>;
-    const timerEl = document.getElementById("timer");
+  <?php if ($errorMsg): ?>
+    <div class="alert alert-danger"><?php echo htmlspecialchars($errorMsg); ?></div>
+  <?php endif; ?>
 
-    const countdown = setInterval(() => {
-      if (timeLeft <= 0) {
-        clearInterval(countdown);
-        alert("Time's up! Submitting your quiz...");
-        document.getElementById("quizForm").submit();
-      } else {
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        timerEl.textContent = `Time left: ${mins}m ${secs < 10 ? "0" : ""}${secs}s`;
-        timeLeft--;
-      }
-    }, 1000);
-  </script>
+  <form action="quiz.php?page=<?php echo $page + 1; ?>" method="POST" id="quizForm">
+    <?php
+    $qNum = $startIndex + 1;
+    foreach ($questionsToShow as $question) {
+        echo "<div class='mb-4 question-block'>";
+        echo "<p><strong>Q{$qNum}. " . htmlspecialchars($question['question_text']) . "</strong></p>";
+
+        foreach (['a', 'b', 'c', 'd'] as $opt) {
+            $optionText = htmlspecialchars($question['option_' . $opt]);
+            $checked = isset($_SESSION['answers'][$question['id']]) && $_SESSION['answers'][$question['id']] == $opt ? 'checked' : '';
+            echo "<div class='form-check'>";
+            echo "<input class='form-check-input' type='radio' name='answer[{$question['id']}]' value='{$opt}' id='q{$question['id']}{$opt}' {$checked}>";
+            echo "<label class='form-check-label' for='q{$question['id']}{$opt}'>{$optionText}</label>";
+            echo "</div>";
+        }
+
+        echo "</div>";
+        $qNum++;
+    }
+    ?>
+    <?php if ($page < $totalPages): ?>
+      <button type="submit" class="btn btn-primary mt-3">Next</button>
+    <?php else: ?>
+      <button type="submit" formaction="submit.php" class="btn btn-success mt-3" id="submitBtn">Submit Quiz</button>
+    <?php endif; ?>
+  </form>
+</div>
+
+<script>
+let timeLeft = <?php echo $timeLeft; ?>;
+const timerEl = document.getElementById("timer");
+const countdown = setInterval(() => {
+  if (timeLeft <= 0) {
+    clearInterval(countdown);
+    alert("Time's up! Submitting your quiz...");
+    document.getElementById("quizForm").submit();
+  } else {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    timerEl.textContent = `Time left: ${mins}m ${secs < 10 ? "0" : ""}${secs}s`;
+    timeLeft--;
+  }
+}, 1000);
+
+// Front-end validation for final page
+const submitBtn = document.getElementById("submitBtn");
+if (submitBtn) {
+  submitBtn.addEventListener("click", function(e) {
+    const questions = document.querySelectorAll(".question-block");
+    let allAnswered = true;
+    questions.forEach(q => {
+      const radios = q.querySelectorAll('input[type="radio"]');
+      const answered = Array.from(radios).some(r => r.checked);
+      if (!answered) allAnswered = false;
+    });
+
+    if (!allAnswered) {
+      e.preventDefault();
+      alert("Please answer all questions before submitting!");
+    }
+  });
+}
+</script>
 </body>
 </html>

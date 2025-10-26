@@ -9,15 +9,33 @@ if (isset($_POST['answer'])) {
     }
 }
 
+// Check if all questions have been answered
+$allAnswered = true;
+foreach ($_SESSION['questions'] as $question) {
+    $id = $question['id'];
+    if (!isset($_SESSION['answers'][$id]) || empty($_SESSION['answers'][$id])) {
+        $allAnswered = false;
+        break;
+    }
+}
+
+if (!$allAnswered) {
+    // Redirect back to quiz page with an error message
+    $_SESSION['error'] = "Please answer all questions before submitting.";
+    header("Location: quiz.php"); // Change this to the page showing the quiz
+    exit();
+}
+
+// Calculate score
 $score = 0;
 $total = count($_SESSION['questions']); // Always 50
 
 foreach ($_SESSION['questions'] as $question) {
     $id = $question['id'];
     $correct = strtolower($question['correct_option']);
-    $userAnswer = isset($_SESSION['answers'][$id]) ? strtolower($_SESSION['answers'][$id]) : null;
+    $userAnswer = strtolower($_SESSION['answers'][$id]);
 
-    if ($userAnswer && $userAnswer === $correct) {
+    if ($userAnswer === $correct) {
         $score++;
     }
 }
